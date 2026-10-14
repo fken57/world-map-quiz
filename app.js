@@ -119,7 +119,9 @@ $('shared-challenge').addEventListener('click', () => {
 window.addEventListener('hashchange', () => {if (features && parseSharedResult(location.hash)) home(); renderSharedResult();}); renderSharedResult();
 async function shareResult(copyOnly = false) {
   if (phase !== 'results') return;
-  const shared = createResultShare(location.href, mode, questions.length, score);
+  const answers = history.map(record => ({country:record.target.name, correct:record.correct,
+    answer:record.selected ? countryById.get(record.selected.id)?.name || record.selected.properties.name : null}));
+  const shared = createResultShare(location.href, mode, questions.length, score, answers);
   $('share-status').textContent = ''; show('share-fallback', false);
   if (!copyOnly && typeof navigator.share === 'function') {
     try {await navigator.share(shared); $('share-status').textContent = '結果を共有しました。'; return;}
