@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="世界地図から国を探す15問・30問のクイズ。easy・normal・hard・random の4つの難易度で挑戦して、結果を共有しよう。">
+  <meta name="theme-color" content="#f4f6f2"><title>世界地図クイズ — ATLAS</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="assets/d3.min.js"></script><script defer src="assets/topojson.min.js"></script>
+  <script defer src="countries.js"></script><script defer src="share.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+<header class="header"><a class="brand" href="./" aria-label="世界地図クイズ ホーム"><span class="brand-icon">◎</span> ATLAS <span class="brand-num">QUIZ</span></a><span class="header-note">世界を、もう少し身近に。</span><span class="tag">WORLD MAP QUIZ</span></header>
+<main>
+  <section id="shared-result" class="shared-result" hidden aria-label="共有された結果"><div><span class="eyebrow">FRIEND'S JOURNEY</span><strong>共有された結果</strong><p id="shared-result-text"></p><small>共有者が作成したスコアです。あなたも同じ設定で挑戦できます。</small></div><button id="shared-challenge" class="secondary">同じ設定で挑戦 ↓</button></section>
+  <section class="intro" id="intro">
+    <div class="eyebrow"><span></span> A LITTLE JOURNEY AROUND THE WORLD</div>
+    <h1>その国は、<br class="mobile-break">どこにある？</h1>
+    <p>国名を見て、世界地図から見つけよう。<br>15問でも、30問でも。あなたの世界を広げる旅へ。</p>
+    <div class="mode-heading"><span>難易度を選ぶ</span><span>時間制限なし</span></div>
+    <div class="modes" role="group" aria-label="難易度">
+      <button class="mode active" data-mode="easy" aria-pressed="true"><span class="mode-icon">◔</span><strong>easy</strong><small>身近な国から</small><span class="mode-check">✓</span></button>
+      <button class="mode" data-mode="normal" aria-pressed="false"><span class="mode-icon">◑</span><strong>normal</strong><small>世界に一歩踏み出す</small><span class="mode-check">✓</span></button>
+      <button class="mode" data-mode="hard" aria-pressed="false"><span class="mode-icon">●</span><strong>hard</strong><small>小さな国まで挑戦</small><span class="mode-check">✓</span></button>
+      <button class="mode" data-mode="random" aria-pressed="false"><span class="mode-icon">⤨</span><strong>random</strong><small>すべての国から</small><span class="mode-check">✓</span></button>
+    </div>
+    <div class="question-options"><span>問題数</span><div class="count-options" role="group" aria-label="問題数"><button data-count="15" aria-pressed="false">15問 <small>気軽に挑戦</small></button><button data-count="30" class="active" aria-pressed="true">30問 <small>じっくり挑戦</small></button></div></div>
+    <button id="start" class="primary" disabled>地図を読み込み中…</button><span class="start-note" id="load-status" role="status">毎回ちがう国を出題。1回のクイズで重複しません。</span>
+  </section>
+  <section id="game" class="game" hidden>
+    <div class="game-top"><span id="mode-badge" class="pill">easy</span><span id="question-count">QUESTION 01 / 30</span><span class="score">正解 <b id="score">0</b><span id="score-total"> / 30</span></span></div>
+    <div class="progress"><div id="progress-bar"></div></div>
+    <div class="question"><div><div class="eyebrow">この国を地図で見つけてください</div><h1 id="country-name"></h1></div><button id="quit" class="text-button">終了する ↗</button></div>
+    <div class="answer-bar"><div id="feedback" role="status" aria-live="polite">地図上の国を選んでください。</div><div class="answer-actions"><button id="skip" class="secondary">わからない</button><button id="answer" class="primary" disabled>この国で回答 →</button><button id="next" class="primary" hidden>次の国へ →</button></div></div>
+  </section>
+  <section class="map-card" aria-label="回答用の世界地図">
+    <div class="map-top"><span><span class="live-dot"></span> EXPLORE THE WORLD</span><span id="map-note">世界地図をクリックして回答</span></div>
+    <div class="map-stage"><svg id="map" viewBox="0 0 1100 540" role="group" aria-label="国境付きの世界地図。拡大、移動して国を選べます。"></svg><div class="map-tools"><button id="zoom-in" aria-label="地図を拡大">＋</button><button id="zoom-out" aria-label="地図を縮小">−</button><button id="reset-map" aria-label="世界地図を全体表示">⌂</button></div><div class="map-watermark">THE WORLD IS YOUR PLAYGROUND</div></div>
+    <div class="map-bottom"><span>ドラッグで移動 · スクロール／ピンチで拡大</span><span class="legend"><i class="chosen"></i>選択 <i class="correct"></i>正解 <i class="wrong"></i>不正解</span></div>
+  </section>
+  <section id="results" class="results" hidden>
+    <div class="eyebrow">YOUR JOURNEY, COMPLETE</div><h1 id="result-heading">おつかれさま。</h1><div class="result-score"><span id="final-score">0</span><small id="final-total"> / 30</small></div><p id="result-message"></p><div class="share-actions"><button id="share-result" class="secondary">結果を共有 ↗</button><button id="copy-result" class="secondary">結果をコピー</button></div><p id="share-status" role="status" aria-live="polite"></p><textarea id="share-fallback" readonly hidden aria-label="共有する結果。選択してコピーしてください。"></textarea><div class="result-actions"><button id="retry" class="primary">同じ設定でもう一度 →</button><button id="home" class="secondary">設定を選び直す</button></div><details id="review-details"><summary>答えを振り返る <span id="review-count"></span></summary><div id="review"></div></details>
+  </section>
+  <div class="how" id="how"><div><span>01</span><b>難易度・問題数を選ぶ</b><small>4つのモード、15問か30問</small></div><div><span>02</span><b>地図から国を選ぶ</b><small>拡大して、小さな国も探そう</small></div><div><span>03</span><b>結果を振り返って共有</b><small>友達と世界をめぐろう</small></div></div>
+</main>
+<footer><span>ATLAS <span class="footer-sub">— 世界地図クイズ</span></span><span>Map: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">Natural Earth</a> / <a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener">world-atlas</a> · 1:50m</span></footer>
+<details class="map-info"><summary>地図・出題について</summary><p>Natural Earth の国境データを使用しています。国境と名称は地図データに基づき、領土に関する立場を表すものではありません。出題は地図に収録された193か国から難易度別に選んでいます（一部の極小国は地図データの収録対象外）。難易度は本クイズ独自の分類です。点の目印は小さな国を選びやすくするためのものです。</p><p>国を選択して「この国で回答」を押してください。国名は回答後に表示します。キーボードでは地図の国に Tab で移動し、Enter / Space で選択できます。</p></details>
+</body></html>
